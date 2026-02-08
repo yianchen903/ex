@@ -1,13 +1,20 @@
-import panda as pd
-import numpy as np
+# L-shape domain
+from dolfin import *
+from fenics import *
+from mshr import *
+import matplotlib.pyplot as plt
 
-def add(a,b):
-    return a+b
+size = 10
 
-print(add(2,3))
+class ExcludedRegion(SubDomain):
+    def inside(self, x, on_boundary):
+        return x[0] <= 0.5 and x[1] <= 0.5
 
-states = ['cal',"tex"]
-popu = [20,40]
-dict_sta = {'states':states, 'popu':popu}
-dfsp = pd.DataFrame(dict_sta)
-dfsp
+mesh = RectangleMesh(Point(0, 0), Point(1, 1), size, size)
+subdomains = MeshFunction("size_t", mesh, mesh.topology().dim())
+subdomains.set_all(0)
+excluded = ExcludedRegion()
+excluded.mark(subdomains, 1)
+mesh = SubMesh(mesh, subdomains, 0)
+
+plot(mesh)
